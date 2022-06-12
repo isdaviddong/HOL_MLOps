@@ -21,7 +21,9 @@ if __name__ == "__main__":
                              compute_target='cpu-cluster2')
 
     # use curated pytorch environment 
-    env = ws.environments['AzureML-PyTorch-1.6-CPU']
+    #env = ws.environments['AzureML-PyTorch-1.6-CPU']
+    env_name = 'AzureML-PyTorch-1.6-CPU'
+    env = Environment.get(workspace=ws, name=env_name)
     config.run_config.environment = env
 
     run = experiment.submit(config)
