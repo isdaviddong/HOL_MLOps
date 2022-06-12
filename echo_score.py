@@ -1,56 +1,32 @@
-# ---------------------------------------------------------
-# Copyright (c) Microsoft Corporation. All rights reserved.
-# ---------------------------------------------------------
-import json
+#import os
 import logging
-import os
-import pickle
-import numpy as np
-import pandas as pd
+import json
+import numpy
 import joblib
-
-import azureml.automl.core
-from azureml.automl.core.shared import logging_utilities, log_server
-from azureml.telemetry import INSTRUMENTATION_KEY
-
-from inference_schema.schema_decorators import input_schema, output_schema
-from inference_schema.parameter_types.numpy_parameter_type import NumpyParameterType
-from inference_schema.parameter_types.pandas_parameter_type import PandasParameterType
-from inference_schema.parameter_types.standard_py_parameter_type import StandardPythonParameterType
-
-data_sample = PandasParameterType(pd.DataFrame({"Age": pd.Series([0], dtype="int64"), "BMI": pd.Series([0.0], dtype="float64"), "DiabetesPedigree": pd.Series([0.0], dtype="float64"), "DiastolicBloodPressure": pd.Series([0], dtype="int64"), "PatientID": pd.Series([0], dtype="int64"), "PlasmaGlucose": pd.Series([0], dtype="int64"), "Pregnancies": pd.Series([0], dtype="int64"), "SerumInsulin": pd.Series([0], dtype="int64"), "TricepsThickness": pd.Series([0], dtype="int64")}))
-input_sample = StandardPythonParameterType({'data': data_sample})
-
-result_sample = NumpyParameterType(np.array([0]))
-output_sample = StandardPythonParameterType({'Results':result_sample})
-
-try:
-    log_server.enable_telemetry(INSTRUMENTATION_KEY)
-    log_server.set_verbosity('INFO')
-    logger = logging.getLogger('azureml.automl.core.scoring_script_v2')
-except:
-    pass
-
+from sklearn.ensemble import RandomForestClassifier
+from azureml.core.model import Model
 
 def init():
-    global model
-    # This name is model.id of model that we want to deploy deserialize the model file back
-    # into a sklearn model
-    model_path = os.path.join(os.getenv('AZUREML_MODEL_DIR'), 'model.pkl')
-    path = os.path.normpath(model_path)
-    path_split = path.split(os.sep)
-    log_server.update_custom_dimensions({'model_name': path_split[-3], 'model_version': path_split[-2]})
-    try:
-        logger.info("Loading model from path.")
-        model = joblib.load(model_path)
-        logger.info("Loading successful.")     
-    except Exception as e:
-        logging_utilities.log_traceback(e, logger)
-        raise
+    global rmodel
 
-@input_schema('Inputs', input_sample)
-@output_schema(output_sample)
-def run(Inputs):
-    data = Inputs['data']
-    result = model.predict(data)
-    return result.tolist()
+    # load the model from file into a global object
+    try:
+        logging.basicConfig(level=logging.DEBUG)
+        #AutoML299e3f00319 要換成你的AutlMO Model名稱
+        model_path = Model.get_model_path(model_name='AutoML99c02cfb423')
+        logging.info(f"model_path ----> {model_path}")
+        #載入model到rmodel全域物件
+        rmodel = joblib.load(model_path)
+        logging.info(f"rmodel ----> {rmodel}")
+    except Exception as e:
+        print(str(e))
+
+def run(raw_data):
+    try:
+        data = json.loads(raw_data)["data"]
+        logging.info(f"json.loads:{data}")
+        return json.dumps({"echo data": data})
+    except Exception as e:
+        err = str(e)
+        return f"ERROR : {err} \n data : {raw_data}  \n model : {rmodel}"
+ 
