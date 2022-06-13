@@ -26,7 +26,7 @@ ws = Workspace.from_config()
 experiment = Experiment(workspace=ws, name="TestAutoMLExp")
 
 #data source(from github)
-data = "https://teststoragedavid01.blob.core.windows.net/mydatasource/diabetes (1).csv"
+data = "https://raw.githubusercontent.com/MicrosoftLearning/mslearn-dp100/main/data/diabetes.csv"
 dataset = Dataset.Tabular.from_delimited_files(data)
 training_data, validation_data = dataset.random_split(percentage=0.7, seed=223)
 label_column_name = "Diabetic"
