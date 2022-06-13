@@ -1,7 +1,5 @@
-#entryScript: echo_score.py
-entryScript: aksscoring_file_v_2_0_0.py
+entryScript: aks_scoring.py
 runtime: python
-#condaFile: scoring-env.yml
 condaFile: aksconda_env_v_1_0_0.yml
 extraDockerfileSteps:
 schemaFile:
