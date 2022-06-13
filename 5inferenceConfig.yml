@@ -1,5 +1,5 @@
 #entryScript: echo_score.py
-entryScript: 5scoring_file_v_2_0_0.py
+entryScript: 5echo_score.py
 runtime: python
 #condaFile: scoring-env.yml
 condaFile: 5conda_env_v_1_0_0.yml
